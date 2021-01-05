@@ -375,11 +375,11 @@ queryを先端に入れたリストを返す。
 	       gnus-est/directory-table
 	       (eq gnus-est-case-sensitive-filesystem
 		   (car gnus-est/directory-table)))
-    (let ((table (make-vector (length gnus-newsrc-hashtb) 0))
+    (let ((table (make-vector (hash-table-count gnus-newsrc-hashtb) 0))
 	  cache agent alist dir method)
-      (mapatoms
-       (lambda (group)
-	 (unless (gnus-ephemeral-group-p (setq group (symbol-name group)))
+      (maphash
+       (lambda (group dummy)
+	 (unless (gnus-ephemeral-group-p group)
 	   (when (file-directory-p
 		  (setq dir (file-name-as-directory
 			     (gnus-cache-file-name group ""))))

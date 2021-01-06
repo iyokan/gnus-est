@@ -111,7 +111,6 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
 (require 'nnoo)
 (require 'nnheader)
 (require 'nnmail)
@@ -712,7 +711,7 @@ and make a virtual group contains its results."
 
 ;; indexファイルがなく、ディレクトリのみなので、_metaで代用しておく。
 (defmacro gnus-est/meta-file-name ()
-  `(expand-file-name "_meta" ,gnus-est-index-directory))
+  `(expand-file-name "_meta" gnus-est-index-directory))
 
 (defun gnus-est/gather-cleanup ()
   nil)
@@ -789,7 +788,7 @@ that is set to `gnus-est-index-update-interval'"
 
 (defun gnus-est/update-p (&optional force)
   "Check if `gnus-est-index-directory' should be updated."
-  (labels ((error-message (format &rest args)
+  (cl-labels ((error-message (format &rest args)
 			  (apply (if force 'error 'message) format args)
 			  nil))
     (if gnus-est/update-process
@@ -818,7 +817,7 @@ that is set to `gnus-est-index-update-interval'"
                           target-directories))))
 	(if (processp proc)
 	    (prog1 (setq gnus-est/update-process proc)
-	      (process-kill-without-query proc)
+	      (set-process-query-on-exit-flag proc nil)
 	      (set-process-sentinel proc 'gnus-est/update-sentinel)
 	      (add-hook 'kill-emacs-hook 'gnus-est-stop-update)
 	      (message "Update index at %s..." gnus-est-index-directory))
